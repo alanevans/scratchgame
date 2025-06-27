@@ -18,6 +18,19 @@ const (
 	moveSpeed    = 3
 )
 
+// Platform represents a platform in the game
+type Platform struct {
+	X, Y, W, H float64
+}
+
+// Game platforms
+var gamePlatforms = []Platform{
+	{200, 400, 100, 20},
+	{400, 300, 100, 20},
+	{600, 350, 100, 20},
+	{800, 250, 100, 20},
+}
+
 // Action types for Redux pattern
 type ActionType string
 
@@ -116,11 +129,39 @@ func gameReducer(state GameState, action Action) GameState {
 		newState.Player.X += newState.Player.VelX
 		newState.Player.Y += newState.Player.VelY
 
-		// Simple ground collision (ground at Y=500)
-		if newState.Player.Y >= 500 {
+		// Platform collision detection
+		playerBottom := newState.Player.Y + newState.Player.Height
+		playerLeft := newState.Player.X
+		playerRight := newState.Player.X + newState.Player.Width
+		
+		landed := false
+		
+		// Check collision with each platform
+		for _, platform := range gamePlatforms {
+			// Check if player is horizontally within platform bounds
+			if playerRight > platform.X && playerLeft < platform.X+platform.W {
+				// Check if player is falling and would land on platform
+				if newState.Player.VelY > 0 && playerBottom >= platform.Y && playerBottom <= platform.Y+platform.H+5 {
+					newState.Player.Y = platform.Y - newState.Player.Height
+					newState.Player.VelY = 0
+					newState.Player.OnGround = true
+					landed = true
+					break
+				}
+			}
+		}
+
+		// Ground collision (ground at Y=500) - only if not already landed on platform
+		if !landed && newState.Player.Y >= 500 {
 			newState.Player.Y = 500
 			newState.Player.VelY = 0
 			newState.Player.OnGround = true
+			landed = true
+		}
+
+		// If not on ground or platform, player is in air
+		if !landed {
+			newState.Player.OnGround = false
 		}
 
 		// Reset horizontal velocity (no friction for now)
@@ -171,15 +212,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 
 	// Draw simple platforms
-	platforms := []struct{ x, y, w, h float64 }{
-		{200, 400, 100, 20},
-		{400, 300, 100, 20},
-		{600, 350, 100, 20},
-		{800, 250, 100, 20},
-	}
-
-	for _, platform := range platforms {
-		ebitenutil.DrawRect(screen, platform.x-state.CameraX, platform.y, platform.w, platform.h, color.RGBA{139, 69, 19, 255})
+	for _, platform := range gamePlatforms {
+		ebitenutil.DrawRect(screen, platform.X-state.CameraX, platform.Y, platform.W, platform.H, color.RGBA{139, 69, 19, 255})
 	}
 
 	// Draw player (small black and white dog)
