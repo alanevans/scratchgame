@@ -176,9 +176,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		ebitenutil.DrawRect(screen, platform.x-state.CameraX, platform.y, platform.w, platform.h, color.RGBA{139, 69, 19, 255})
 	}
 
-	// Draw player (simple red rectangle)
+	// Draw player (small black and white dog)
 	playerScreenX := state.Player.X - state.CameraX
-	ebitenutil.DrawRect(screen, playerScreenX, state.Player.Y, state.Player.Width, state.Player.Height, color.RGBA{255, 0, 0, 255})
+	drawDog(screen, playerScreenX, state.Player.Y)
 
 	// Draw UI
 	ebitenutil.DebugPrint(screen, fmt.Sprintf("Player: (%.1f, %.1f)", state.Player.X, state.Player.Y))
@@ -188,6 +188,45 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	ebitenutil.DebugPrint(screen, "\n\nControls:")
 	ebitenutil.DebugPrint(screen, "\nArrows/WASD: Move")
 	ebitenutil.DebugPrint(screen, "\nSpace/Up/W: Jump")
+}
+
+// drawDog draws a simple pixel art dog using rectangles
+func drawDog(screen *ebiten.Image, x, y float64) {
+	// Dog body (white)
+	ebitenutil.DrawRect(screen, x+8, y+16, 16, 12, color.RGBA{255, 255, 255, 255})
+
+	// Dog head (white)
+	ebitenutil.DrawRect(screen, x+4, y+8, 12, 12, color.RGBA{255, 255, 255, 255})
+
+	// Dog ears (black)
+	ebitenutil.DrawRect(screen, x+2, y+6, 4, 6, color.RGBA{0, 0, 0, 255})  // Left ear
+	ebitenutil.DrawRect(screen, x+14, y+6, 4, 6, color.RGBA{0, 0, 0, 255}) // Right ear
+
+	// Dog nose (black)
+	ebitenutil.DrawRect(screen, x+8, y+12, 2, 2, color.RGBA{0, 0, 0, 255})
+
+	// Dog eyes (black)
+	ebitenutil.DrawRect(screen, x+6, y+10, 1, 1, color.RGBA{0, 0, 0, 255})  // Left eye
+	ebitenutil.DrawRect(screen, x+13, y+10, 1, 1, color.RGBA{0, 0, 0, 255}) // Right eye
+
+	// Dog legs (white)
+	ebitenutil.DrawRect(screen, x+10, y+28, 3, 4, color.RGBA{255, 255, 255, 255}) // Front left leg
+	ebitenutil.DrawRect(screen, x+15, y+28, 3, 4, color.RGBA{255, 255, 255, 255}) // Front right leg
+	ebitenutil.DrawRect(screen, x+19, y+28, 3, 4, color.RGBA{255, 255, 255, 255}) // Back left leg
+	ebitenutil.DrawRect(screen, x+22, y+28, 3, 4, color.RGBA{255, 255, 255, 255}) // Back right leg
+
+	// Dog paws (black)
+	ebitenutil.DrawRect(screen, x+10, y+30, 3, 2, color.RGBA{0, 0, 0, 255}) // Front left paw
+	ebitenutil.DrawRect(screen, x+15, y+30, 3, 2, color.RGBA{0, 0, 0, 255}) // Front right paw
+	ebitenutil.DrawRect(screen, x+19, y+30, 3, 2, color.RGBA{0, 0, 0, 255}) // Back left paw
+	ebitenutil.DrawRect(screen, x+22, y+30, 3, 2, color.RGBA{0, 0, 0, 255}) // Back right paw
+
+	// Dog tail (black)
+	ebitenutil.DrawRect(screen, x+24, y+18, 4, 2, color.RGBA{0, 0, 0, 255})
+
+	// Dog spots (black patches for pattern)
+	ebitenutil.DrawRect(screen, x+12, y+18, 4, 4, color.RGBA{0, 0, 0, 255}) // Body spot
+	ebitenutil.DrawRect(screen, x+16, y+10, 2, 3, color.RGBA{0, 0, 0, 255}) // Head spot
 }
 
 // Layout implements ebiten.Game interface
