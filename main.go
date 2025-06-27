@@ -41,6 +41,7 @@ type Player struct {
 	VelX, VelY    float64
 	Width, Height float64
 	OnGround      bool
+	FacingRight   bool // New field to track facing direction
 }
 
 // GameState represents the complete game state
@@ -60,11 +61,12 @@ func NewStore(reducer func(GameState, Action) GameState) *Store {
 	return &Store{
 		state: GameState{
 			Player: Player{
-				X:        100,
-				Y:        400,
-				Width:    32,
-				Height:   32,
-				OnGround: false,
+				X:           100,
+				Y:           400,
+				Width:       32,
+				Height:      32,
+				OnGround:    false,
+				FacingRight: true, // Start facing right
 			},
 			CameraX: 0,
 		},
@@ -84,7 +86,9 @@ func (s *Store) GetState() GameState {
 
 // Game implements ebiten.Game interface
 type Game struct {
-	store *Store
+	store          *Store
+	dogSpriteRight *ebiten.Image
+	dogSpriteLeft  *ebiten.Image
 }
 
 // gameReducer handles state changes based on actions
@@ -94,8 +98,10 @@ func gameReducer(state GameState, action Action) GameState {
 	switch action.Type {
 	case MOVE_LEFT:
 		newState.Player.VelX = -moveSpeed
+		newState.Player.FacingRight = false
 	case MOVE_RIGHT:
 		newState.Player.VelX = moveSpeed
+		newState.Player.FacingRight = true
 	case JUMP:
 		if newState.Player.OnGround {
 			newState.Player.VelY = jumpForce
@@ -178,7 +184,18 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	// Draw player (small black and white dog)
 	playerScreenX := state.Player.X - state.CameraX
-	drawDog(screen, playerScreenX, state.Player.Y)
+	var dogSprite *ebiten.Image
+	if state.Player.FacingRight {
+		dogSprite = g.dogSpriteRight
+	} else {
+		dogSprite = g.dogSpriteLeft
+	}
+
+	if dogSprite != nil {
+		op := &ebiten.DrawImageOptions{}
+		op.GeoM.Translate(playerScreenX, state.Player.Y)
+		screen.DrawImage(dogSprite, op)
+	}
 
 	// Draw UI
 	ebitenutil.DebugPrint(screen, fmt.Sprintf("Player: (%.1f, %.1f)", state.Player.X, state.Player.Y))
@@ -190,57 +207,31 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	ebitenutil.DebugPrint(screen, "\nSpace/Up/W: Jump")
 }
 
-// drawDog draws a simple pixel art dog using rectangles
-func drawDog(screen *ebiten.Image, x, y float64) {
-	// Dog body (white)
-	ebitenutil.DrawRect(screen, x+8, y+16, 16, 12, color.RGBA{255, 255, 255, 255})
-
-	// Dog head (white)
-	ebitenutil.DrawRect(screen, x+4, y+8, 12, 12, color.RGBA{255, 255, 255, 255})
-
-	// Dog ears (black)
-	ebitenutil.DrawRect(screen, x+2, y+6, 4, 6, color.RGBA{0, 0, 0, 255})  // Left ear
-	ebitenutil.DrawRect(screen, x+14, y+6, 4, 6, color.RGBA{0, 0, 0, 255}) // Right ear
-
-	// Dog nose (black)
-	ebitenutil.DrawRect(screen, x+8, y+12, 2, 2, color.RGBA{0, 0, 0, 255})
-
-	// Dog eyes (black)
-	ebitenutil.DrawRect(screen, x+6, y+10, 1, 1, color.RGBA{0, 0, 0, 255})  // Left eye
-	ebitenutil.DrawRect(screen, x+13, y+10, 1, 1, color.RGBA{0, 0, 0, 255}) // Right eye
-
-	// Dog legs (white)
-	ebitenutil.DrawRect(screen, x+10, y+28, 3, 4, color.RGBA{255, 255, 255, 255}) // Front left leg
-	ebitenutil.DrawRect(screen, x+15, y+28, 3, 4, color.RGBA{255, 255, 255, 255}) // Front right leg
-	ebitenutil.DrawRect(screen, x+19, y+28, 3, 4, color.RGBA{255, 255, 255, 255}) // Back left leg
-	ebitenutil.DrawRect(screen, x+22, y+28, 3, 4, color.RGBA{255, 255, 255, 255}) // Back right leg
-
-	// Dog paws (black)
-	ebitenutil.DrawRect(screen, x+10, y+30, 3, 2, color.RGBA{0, 0, 0, 255}) // Front left paw
-	ebitenutil.DrawRect(screen, x+15, y+30, 3, 2, color.RGBA{0, 0, 0, 255}) // Front right paw
-	ebitenutil.DrawRect(screen, x+19, y+30, 3, 2, color.RGBA{0, 0, 0, 255}) // Back left paw
-	ebitenutil.DrawRect(screen, x+22, y+30, 3, 2, color.RGBA{0, 0, 0, 255}) // Back right paw
-
-	// Dog tail (black)
-	ebitenutil.DrawRect(screen, x+24, y+18, 4, 2, color.RGBA{0, 0, 0, 255})
-
-	// Dog spots (black patches for pattern)
-	ebitenutil.DrawRect(screen, x+12, y+18, 4, 4, color.RGBA{0, 0, 0, 255}) // Body spot
-	ebitenutil.DrawRect(screen, x+16, y+10, 2, 3, color.RGBA{0, 0, 0, 255}) // Head spot
-}
-
 // Layout implements ebiten.Game interface
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 	return screenWidth, screenHeight
 }
 
 func main() {
+	// Load dog sprites (note: we swap the files because the flipping logic is reversed)
+	dogSpriteRight, _, err := ebitenutil.NewImageFromFile("dog_sprite_left.png") // Use left file for right facing
+	if err != nil {
+		log.Fatal("Failed to load right dog sprite:", err)
+	}
+
+	dogSpriteLeft, _, err := ebitenutil.NewImageFromFile("dog_sprite_right.png") // Use right file for left facing
+	if err != nil {
+		log.Fatal("Failed to load left dog sprite:", err)
+	}
+
 	// Create store with reducer
 	store := NewStore(gameReducer)
 
 	// Create game instance
 	game := &Game{
-		store: store,
+		store:          store,
+		dogSpriteRight: dogSpriteRight,
+		dogSpriteLeft:  dogSpriteLeft,
 	}
 
 	// Set window properties
