@@ -55,6 +55,9 @@ type Player struct {
 	Width, Height float64
 	OnGround      bool
 	FacingRight   bool // New field to track facing direction
+	IsMoving      bool // Track if player is moving horizontally
+	AnimFrame     int  // Animation frame for walking cycle
+	AnimTimer     int  // Timer for animation timing
 }
 
 // GameState represents the complete game state
@@ -80,6 +83,9 @@ func NewStore(reducer func(GameState, Action) GameState) *Store {
 				Height:      32,
 				OnGround:    false,
 				FacingRight: true, // Start facing right
+				IsMoving:    false,
+				AnimFrame:   0,
+				AnimTimer:   0,
 			},
 			CameraX: 0,
 		},
@@ -99,9 +105,11 @@ func (s *Store) GetState() GameState {
 
 // Game implements ebiten.Game interface
 type Game struct {
-	store          *Store
-	dogSpriteRight *ebiten.Image
-	dogSpriteLeft  *ebiten.Image
+	store              *Store
+	dogSpriteRight     *ebiten.Image
+	dogSpriteLeft      *ebiten.Image
+	dogWalkRightFrames [4]*ebiten.Image
+	dogWalkLeftFrames  [4]*ebiten.Image
 }
 
 // gameReducer handles state changes based on actions
@@ -112,9 +120,11 @@ func gameReducer(state GameState, action Action) GameState {
 	case MOVE_LEFT:
 		newState.Player.VelX = -moveSpeed
 		newState.Player.FacingRight = false
+		newState.Player.IsMoving = true
 	case MOVE_RIGHT:
 		newState.Player.VelX = moveSpeed
 		newState.Player.FacingRight = true
+		newState.Player.IsMoving = true
 	case JUMP:
 		if newState.Player.OnGround {
 			newState.Player.VelY = jumpForce
@@ -133,9 +143,9 @@ func gameReducer(state GameState, action Action) GameState {
 		playerBottom := newState.Player.Y + newState.Player.Height
 		playerLeft := newState.Player.X
 		playerRight := newState.Player.X + newState.Player.Width
-		
+
 		landed := false
-		
+
 		// Check collision with each platform
 		for _, platform := range gamePlatforms {
 			// Check if player is horizontally within platform bounds
@@ -167,12 +177,30 @@ func gameReducer(state GameState, action Action) GameState {
 		// Reset horizontal velocity (no friction for now)
 		newState.Player.VelX = 0
 
+		// Update animation if moving
+		if newState.Player.IsMoving && newState.Player.OnGround {
+			newState.Player.AnimTimer++
+			if newState.Player.AnimTimer >= 8 { // Change frame every 8 ticks
+				newState.Player.AnimFrame = (newState.Player.AnimFrame + 1) % 4 // 4 frame cycle
+				newState.Player.AnimTimer = 0
+			}
+		} else {
+			// Reset animation when not moving
+			newState.Player.AnimFrame = 0
+			newState.Player.AnimTimer = 0
+		}
+
 		// Update camera to follow player
 		targetCameraX := newState.Player.X - screenWidth/2
 		if targetCameraX < 0 {
 			targetCameraX = 0
 		}
 		newState.CameraX = targetCameraX
+	}
+
+	// Reset moving state at the end of each frame (outside the switch)
+	if action.Type == UPDATE_POSITION {
+		newState.Player.IsMoving = false
 	}
 
 	return newState
@@ -219,10 +247,24 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	// Draw player (small black and white dog)
 	playerScreenX := state.Player.X - state.CameraX
 	var dogSprite *ebiten.Image
-	if state.Player.FacingRight {
-		dogSprite = g.dogSpriteRight
+
+	// Check if player was moving this frame (AnimFrame > 0 or AnimTimer > 0 indicates recent movement)
+	isCurrentlyAnimating := state.Player.AnimFrame > 0 || state.Player.AnimTimer > 0
+
+	if isCurrentlyAnimating && state.Player.OnGround {
+		// Use walking animation when moving on ground
+		if state.Player.FacingRight {
+			dogSprite = g.dogWalkRightFrames[state.Player.AnimFrame]
+		} else {
+			dogSprite = g.dogWalkLeftFrames[state.Player.AnimFrame]
+		}
 	} else {
-		dogSprite = g.dogSpriteLeft
+		// Use standing sprite when not moving or in air
+		if state.Player.FacingRight {
+			dogSprite = g.dogSpriteRight
+		} else {
+			dogSprite = g.dogSpriteLeft
+		}
 	}
 
 	if dogSprite != nil {
@@ -236,6 +278,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	ebitenutil.DebugPrint(screen, fmt.Sprintf("\nVelocity: (%.1f, %.1f)", state.Player.VelX, state.Player.VelY))
 	ebitenutil.DebugPrint(screen, fmt.Sprintf("\nOnGround: %v", state.Player.OnGround))
 	ebitenutil.DebugPrint(screen, fmt.Sprintf("\nCamera: %.1f", state.CameraX))
+	ebitenutil.DebugPrint(screen, fmt.Sprintf("\nIsMoving: %v, AnimFrame: %d, AnimTimer: %d", state.Player.IsMoving, state.Player.AnimFrame, state.Player.AnimTimer))
 	ebitenutil.DebugPrint(screen, "\n\nControls:")
 	ebitenutil.DebugPrint(screen, "\nArrows/WASD: Move")
 	ebitenutil.DebugPrint(screen, "\nSpace/Up/W: Jump")
@@ -258,14 +301,35 @@ func main() {
 		log.Fatal("Failed to load left dog sprite:", err)
 	}
 
+	// Load walking animation frames
+	var dogWalkRightFrames [4]*ebiten.Image
+	var dogWalkLeftFrames [4]*ebiten.Image
+
+	for i := 0; i < 4; i++ {
+		// Note: swapped again due to flipping logic
+		rightFrame, _, err := ebitenutil.NewImageFromFile(fmt.Sprintf("dog_sprite_left_walk_%d.png", i))
+		if err != nil {
+			log.Fatal("Failed to load right walk frame:", err)
+		}
+		dogWalkRightFrames[i] = rightFrame
+
+		leftFrame, _, err := ebitenutil.NewImageFromFile(fmt.Sprintf("dog_sprite_right_walk_%d.png", i))
+		if err != nil {
+			log.Fatal("Failed to load left walk frame:", err)
+		}
+		dogWalkLeftFrames[i] = leftFrame
+	}
+
 	// Create store with reducer
 	store := NewStore(gameReducer)
 
 	// Create game instance
 	game := &Game{
-		store:          store,
-		dogSpriteRight: dogSpriteRight,
-		dogSpriteLeft:  dogSpriteLeft,
+		store:              store,
+		dogSpriteRight:     dogSpriteRight,
+		dogSpriteLeft:      dogSpriteLeft,
+		dogWalkRightFrames: dogWalkRightFrames,
+		dogWalkLeftFrames:  dogWalkLeftFrames,
 	}
 
 	// Set window properties

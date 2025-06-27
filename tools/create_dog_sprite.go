@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"image"
 	"image/color"
 	"image/png"
@@ -10,12 +11,20 @@ import (
 
 // This is a helper program to create dog sprite images
 func main() {
-	createDogSprite(false, "dog_sprite_right.png") // Right-facing (default)
-	createDogSprite(true, "dog_sprite_left.png")   // Left-facing (flipped)
-	log.Println("Dog sprites created: dog_sprite_right.png and dog_sprite_left.png")
+	// Create base sprites (standing)
+	createDogSprite(false, 0, "dog_sprite_right.png") // Right-facing (default)
+	createDogSprite(true, 0, "dog_sprite_left.png")   // Left-facing (flipped)
+
+	// Create walking animation frames
+	for frame := 0; frame < 4; frame++ {
+		createDogSprite(false, frame, fmt.Sprintf("dog_sprite_right_walk_%d.png", frame))
+		createDogSprite(true, frame, fmt.Sprintf("dog_sprite_left_walk_%d.png", frame))
+	}
+
+	log.Println("Dog sprites created with walking animation frames")
 }
 
-func createDogSprite(flipHorizontal bool, filename string) {
+func createDogSprite(flipHorizontal bool, animFrame int, filename string) {
 	// Create a 32x32 image
 	img := image.NewRGBA(image.Rect(0, 0, 32, 32))
 
@@ -62,17 +71,32 @@ func createDogSprite(flipHorizontal bool, filename string) {
 	drawRect(6, 10, 1, 1, black)  // Left eye
 	drawRect(13, 10, 1, 1, black) // Right eye
 
-	// Dog legs (white)
-	drawRect(10, 28, 3, 4, white) // Front left leg
-	drawRect(15, 28, 3, 4, white) // Front right leg
-	drawRect(19, 28, 3, 4, white) // Back left leg
-	drawRect(22, 28, 3, 4, white) // Back right leg
+	// Dog legs (white) - with walking animation
+	var frontLeftY, frontRightY, backLeftY, backRightY int = 28, 28, 28, 28
 
-	// Dog paws (black)
-	drawRect(10, 30, 3, 2, black) // Front left paw
-	drawRect(15, 30, 3, 2, black) // Front right paw
-	drawRect(19, 30, 3, 2, black) // Back left paw
-	drawRect(22, 30, 3, 2, black) // Back right paw
+	if animFrame > 0 { // Only animate if not standing still
+		switch animFrame {
+		case 1:
+			frontLeftY = 26 // Front left leg up
+			backRightY = 26 // Back right leg up
+		case 2:
+			// All legs down (neutral)
+		case 3:
+			frontRightY = 26 // Front right leg up
+			backLeftY = 26   // Back left leg up
+		}
+	}
+
+	drawRect(10, frontLeftY, 3, 32-frontLeftY, white)   // Front left leg
+	drawRect(15, frontRightY, 3, 32-frontRightY, white) // Front right leg
+	drawRect(19, backLeftY, 3, 32-backLeftY, white)     // Back left leg
+	drawRect(22, backRightY, 3, 32-backRightY, white)   // Back right leg
+
+	// Dog paws (black) - positioned at bottom of legs
+	drawRect(10, frontLeftY+3, 3, 2, black)  // Front left paw
+	drawRect(15, frontRightY+3, 3, 2, black) // Front right paw
+	drawRect(19, backLeftY+3, 3, 2, black)   // Back left paw
+	drawRect(22, backRightY+3, 3, 2, black)  // Back right paw
 
 	// Dog tail (black)
 	drawRect(24, 18, 4, 2, black)
