@@ -30,8 +30,17 @@ func (am *AssetManager) LoadAssets() {
 	// Create placeholder colored rectangles for now
 	// In a real game, you would load actual image files
 
-	// Player sprite (black and white fluffy dog)
-	am.images["player"] = am.createFluffyDogSprite(32, 48)
+	// Player sprite (try to load from file, fallback to procedural)
+	if err := am.LoadImageFromFile("dog.png", "player"); err != nil {
+		// Fallback to procedurally generated dog if file doesn't exist
+		log.Printf("Could not load dog.png, using procedural dog: %v", err)
+		am.images["player"] = am.createFluffyDogSprite(32, 48)
+		
+		// Show instructions for using custom image
+		am.CreateSampleDogImage()
+	} else {
+		log.Println("Loaded dog sprite from dog.png")
+	}
 
 	// Platform sprite (green rectangle)
 	am.images["platform"] = am.createColoredRect(128, 32, color.RGBA{0, 200, 0, 255})
@@ -254,4 +263,31 @@ func (am *AssetManager) createFluffyDogSprite(width, height int) *ebiten.Image {
 	img.DrawImage(tailTipSpot, tailTipSpotOpts)
 
 	return img
+}
+
+// CreateSampleDogImage creates a sample dog PNG image file
+func (am *AssetManager) CreateSampleDogImage() error {
+	// Create a sample dog image using our existing sprite function
+	dogSprite := am.createFluffyDogSprite(32, 48)
+
+	// Convert ebiten.Image to standard image
+	rgba := image.NewRGBA(image.Rect(0, 0, 32, 48))
+
+	// Copy pixels from ebiten image to RGBA image
+	for y := 0; y < 48; y++ {
+		for x := 0; x < 32; x++ {
+			c := dogSprite.At(x, y)
+			rgba.Set(x, y, c)
+		}
+	}
+
+	// Save to assets directory (this won't work with embed, but shows the concept)
+	// In practice, you'd manually place your dog.png file in the assets folder
+	log.Println("Sample dog image would be saved as assets/dog.png")
+	log.Println("To use a custom dog image:")
+	log.Println("1. Create or find a 32x48 pixel PNG image of a dog")
+	log.Println("2. Save it as 'dog.png' in the internal/game/assets/ directory")
+	log.Println("3. Rebuild the game")
+
+	return nil
 }

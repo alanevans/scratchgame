@@ -1,0 +1,10 @@
+# Dog Image Placeholder
+
+To use a real dog image:
+
+1. Replace this file with your dog image file named "dog.png"
+2. The image should be 32x48 pixels for best results
+3. Use PNG format for transparency support
+4. Make sure it's a right-facing dog sprite
+
+Supported formats: PNG, JPEG, GIF
