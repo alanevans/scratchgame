@@ -18,16 +18,16 @@ func NewLevelManager(entityManager *EntityManager, assetManager *AssetManager) *
 func (lm *LevelManager) LoadLevel1() {
 	// Clear existing entities
 	lm.clearLevel()
-	
+
 	// Create player
 	lm.createPlayer(100, 400)
-	
+
 	// Create platforms
-	lm.createPlatform(0, 550, 800, 50)     // Ground
-	lm.createPlatform(200, 450, 150, 20)   // Platform 1
-	lm.createPlatform(450, 350, 150, 20)   // Platform 2
-	lm.createPlatform(100, 250, 100, 20)   // Platform 3
-	lm.createPlatform(600, 200, 120, 20)   // Platform 4
+	lm.createPlatform(0, 550, 800, 50)   // Ground
+	lm.createPlatform(200, 450, 150, 20) // Platform 1
+	lm.createPlatform(450, 350, 150, 20) // Platform 2
+	lm.createPlatform(100, 250, 100, 20) // Platform 3
+	lm.createPlatform(600, 200, 120, 20) // Platform 4
 }
 
 // clearLevel removes all entities from the level
@@ -39,7 +39,7 @@ func (lm *LevelManager) clearLevel() {
 // createPlayer creates the player entity
 func (lm *LevelManager) createPlayer(x, y float64) EntityID {
 	playerID := lm.entityManager.CreateEntity()
-	
+
 	// Add components
 	lm.entityManager.AddComponent(playerID, &PositionComponent{X: x, Y: y})
 	lm.entityManager.AddComponent(playerID, &VelocityComponent{VX: 0, VY: 0})
@@ -51,11 +51,11 @@ func (lm *LevelManager) createPlayer(x, y float64) EntityID {
 		OffsetY:  0,
 	})
 	lm.entityManager.AddComponent(playerID, &ColliderComponent{
-		Width:    32,
-		Height:   48,
-		OffsetX:  0,
-		OffsetY:  0,
-		IsSolid:  true,
+		Width:     32,
+		Height:    48,
+		OffsetX:   0,
+		OffsetY:   0,
+		IsSolid:   true,
 		IsTrigger: false,
 	})
 	lm.entityManager.AddComponent(playerID, &PlayerComponent{
@@ -74,19 +74,19 @@ func (lm *LevelManager) createPlayer(x, y float64) EntityID {
 	lm.entityManager.AddComponent(playerID, &InputComponent{
 		Enabled: true,
 	})
-	
+
 	return playerID
 }
 
 // createPlatform creates a platform entity
 func (lm *LevelManager) createPlatform(x, y, width, height float64) EntityID {
 	platformID := lm.entityManager.CreateEntity()
-	
+
 	// Create a custom sprite for this platform size
-	platformSprite := lm.assetManager.createColoredRect(int(width), int(height), 
+	platformSprite := lm.assetManager.createColoredRect(int(width), int(height),
 		struct{ R, G, B, A uint8 }{0, 150, 0, 255})
 	lm.assetManager.AddImage("platform_"+string(rune(platformID)), platformSprite)
-	
+
 	// Add components
 	lm.entityManager.AddComponent(platformID, &PositionComponent{X: x, Y: y})
 	lm.entityManager.AddComponent(platformID, &SpriteComponent{
@@ -97,11 +97,11 @@ func (lm *LevelManager) createPlatform(x, y, width, height float64) EntityID {
 		OffsetY:  0,
 	})
 	lm.entityManager.AddComponent(platformID, &ColliderComponent{
-		Width:    width,
-		Height:   height,
-		OffsetX:  0,
-		OffsetY:  0,
-		IsSolid:  true,
+		Width:     width,
+		Height:    height,
+		OffsetX:   0,
+		OffsetY:   0,
+		IsSolid:   true,
 		IsTrigger: false,
 	})
 	lm.entityManager.AddComponent(platformID, &PlatformComponent{
@@ -112,6 +112,6 @@ func (lm *LevelManager) createPlatform(x, y, width, height float64) EntityID {
 		StartX:        x,
 		StartY:        y,
 	})
-	
+
 	return platformID
 }
