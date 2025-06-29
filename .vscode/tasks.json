@@ -1,0 +1,15 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Build and Run Game",
+			"type": "shell",
+			"command": "go build -o scratchgame . && ./scratchgame",
+			"group": "build",
+			"isBackground": true,
+			"problemMatcher": [
+				"$go"
+			]
+		}
+	]
+}
