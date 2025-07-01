@@ -35,13 +35,13 @@ func NewStateManager(game *Game) *StateManager {
 		game:   game,
 		states: make(map[StateType]GameState),
 	}
-	
+
 	// Register all game states
 	sm.states[StateTypeMenu] = NewMenuState()
 	sm.states[StateTypePlaying] = NewPlayingState()
 	sm.states[StateTypePaused] = NewPausedState()
 	sm.states[StateTypeGameOver] = NewGameOverState()
-	
+
 	return sm
 }
 
@@ -50,7 +50,7 @@ func (sm *StateManager) ChangeState(stateType StateType) {
 	if sm.currentState != nil {
 		sm.currentState.Exit()
 	}
-	
+
 	sm.currentState = sm.states[stateType]
 	sm.currentState.Enter()
 }

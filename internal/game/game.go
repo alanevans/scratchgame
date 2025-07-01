@@ -8,16 +8,16 @@ import (
 type Game struct {
 	width  int
 	height int
-	
+
 	// Game state management
 	stateManager *StateManager
-	
+
 	// Input manager
 	inputManager *InputManager
-	
+
 	// Asset manager
 	assetManager *AssetManager
-	
+
 	// Entity manager (for ECS pattern)
 	entityManager *EntityManager
 }
@@ -28,19 +28,19 @@ func NewGame(width, height int) *Game {
 		width:  width,
 		height: height,
 	}
-	
+
 	// Initialize managers
 	g.inputManager = NewInputManager()
 	g.assetManager = NewAssetManager()
 	g.entityManager = NewEntityManager()
 	g.stateManager = NewStateManager(g)
-	
+
 	// Load initial assets
 	g.assetManager.LoadAssets()
-	
+
 	// Set initial state to playing
 	g.stateManager.ChangeState(StateTypePlaying)
-	
+
 	return g
 }
 
@@ -48,10 +48,10 @@ func NewGame(width, height int) *Game {
 func (g *Game) Update() error {
 	// Update input
 	g.inputManager.Update()
-	
+
 	// Update current state
 	g.stateManager.Update()
-	
+
 	return nil
 }
 

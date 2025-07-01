@@ -72,30 +72,30 @@ func (s *PlayingState) Update(game *Game) error {
 		s.levelManager.LoadLevel1()
 		s.initialized = true
 	}
-	
+
 	// Check for pause
 	if game.GetInputManager().IsKeyJustPressed(ebiten.KeyEscape) {
 		game.stateManager.ChangeState(StateTypePaused)
 		return nil
 	}
-	
+
 	// Update all systems
 	for _, system := range s.systems {
 		if err := system.Update(game.GetEntityManager(), game.GetInputManager()); err != nil {
 			return err
 		}
 	}
-	
+
 	return nil
 }
 
 func (s *PlayingState) Draw(screen *ebiten.Image, game *Game) {
 	// Clear screen with background color
 	screen.Fill(color.RGBA{135, 206, 235, 255}) // Sky blue
-	
+
 	// Draw all entities
 	s.renderSystem.Draw(screen, game.GetEntityManager(), game.GetAssetManager())
-	
+
 	// Draw UI
 	ebitenutil.DebugPrint(screen, "ESC to pause")
 }
@@ -120,12 +120,12 @@ func (s *PausedState) Update(game *Game) error {
 	if game.GetInputManager().IsKeyJustPressed(ebiten.KeyEscape) {
 		game.stateManager.ChangeState(StateTypePlaying)
 	}
-	
+
 	// Check for return to menu
 	if game.GetInputManager().IsKeyJustPressed(ebiten.KeyQ) {
 		game.stateManager.ChangeState(StateTypeMenu)
 	}
-	
+
 	return nil
 }
 
@@ -134,7 +134,7 @@ func (s *PausedState) Draw(screen *ebiten.Image, game *Game) {
 	overlay := ebiten.NewImage(game.width, game.height)
 	overlay.Fill(color.RGBA{0, 0, 0, 128})
 	screen.DrawImage(overlay, &ebiten.DrawImageOptions{})
-	
+
 	ebitenutil.DebugPrint(screen, "PAUSED\n\nESC to resume\nQ to quit to menu")
 }
 
@@ -158,12 +158,12 @@ func (s *GameOverState) Update(game *Game) error {
 	if game.GetInputManager().IsKeyJustPressed(ebiten.KeySpace) {
 		game.stateManager.ChangeState(StateTypePlaying)
 	}
-	
+
 	// Check for return to menu
 	if game.GetInputManager().IsKeyJustPressed(ebiten.KeyQ) {
 		game.stateManager.ChangeState(StateTypeMenu)
 	}
-	
+
 	return nil
 }
 

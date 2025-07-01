@@ -34,8 +34,8 @@ func (am *AssetManager) LoadAssets() {
 	if err := am.LoadImageFromFile("dog.png", "player"); err != nil {
 		// Fallback to procedurally generated dog if file doesn't exist
 		log.Printf("Could not load dog.png, using procedural dog: %v", err)
-		am.images["player"] = am.createFluffyDogSprite(32, 48)
-		
+		am.images["player"] = am.createFluffyDogSprite(48, 48)
+
 		// Show instructions for using custom image
 		am.CreateSampleDogImage()
 	} else {
@@ -112,96 +112,96 @@ func (am *AssetManager) createFluffyDogSprite(width, height int) *ebiten.Image {
 
 	// Create a right-facing dog with clear features
 
-	// Main body (white base) - made horizontally longer
-	bodyImg := ebiten.NewImage(26, 24)
+	// Main body (white base) - made horizontally longer for wider dog
+	bodyImg := ebiten.NewImage(32, 24)
 	bodyImg.Fill(white)
 	bodyOpts := &ebiten.DrawImageOptions{}
-	bodyOpts.GeoM.Translate(3, 16)
+	bodyOpts.GeoM.Translate(8, 16)
 	img.DrawImage(bodyImg, bodyOpts)
 
 	// Random black patches on body for fluffy pattern
 	// Large patch on back
-	backPatch := ebiten.NewImage(12, 12)
+	backPatch := ebiten.NewImage(14, 12)
 	backPatch.Fill(black)
 	backPatchOpts := &ebiten.DrawImageOptions{}
-	backPatchOpts.GeoM.Translate(5, 18)
+	backPatchOpts.GeoM.Translate(10, 18)
 	img.DrawImage(backPatch, backPatchOpts)
 
 	// Small patch on side
-	sidePatch := ebiten.NewImage(8, 8)
+	sidePatch := ebiten.NewImage(10, 8)
 	sidePatch.Fill(black)
 	sidePatchOpts := &ebiten.DrawImageOptions{}
-	sidePatchOpts.GeoM.Translate(20, 24)
+	sidePatchOpts.GeoM.Translate(26, 24)
 	img.DrawImage(sidePatch, sidePatchOpts)
 
 	// Head (white base) - positioned for right-facing
 	headImg := ebiten.NewImage(16, 14)
 	headImg.Fill(white)
 	headOpts := &ebiten.DrawImageOptions{}
-	headOpts.GeoM.Translate(12, 4)
+	headOpts.GeoM.Translate(20, 4)
 	img.DrawImage(headImg, headOpts)
 
 	// Snout (longer, extending further to the right)
 	snoutImg := ebiten.NewImage(12, 6)
 	snoutImg.Fill(white)
 	snoutOpts := &ebiten.DrawImageOptions{}
-	snoutOpts.GeoM.Translate(24, 10)
+	snoutOpts.GeoM.Translate(32, 10)
 	img.DrawImage(snoutImg, snoutOpts)
 
 	// Black patch on head (random pattern)
 	headPatch := ebiten.NewImage(8, 10)
 	headPatch.Fill(black)
 	headPatchOpts := &ebiten.DrawImageOptions{}
-	headPatchOpts.GeoM.Translate(14, 6)
+	headPatchOpts.GeoM.Translate(22, 6)
 	img.DrawImage(headPatch, headPatchOpts)
 
 	// Black eye patch (covering one eye area)
 	eyePatch := ebiten.NewImage(6, 6)
 	eyePatch.Fill(black)
 	eyePatchOpts := &ebiten.DrawImageOptions{}
-	eyePatchOpts.GeoM.Translate(18, 7)
+	eyePatchOpts.GeoM.Translate(26, 7)
 	img.DrawImage(eyePatch, eyePatchOpts)
 
 	// Left ear (floppy black, hanging down on left side)
 	leftEar := ebiten.NewImage(5, 10)
 	leftEar.Fill(black)
 	leftEarOpts := &ebiten.DrawImageOptions{}
-	leftEarOpts.GeoM.Translate(10, 6)
+	leftEarOpts.GeoM.Translate(18, 6)
 	img.DrawImage(leftEar, leftEarOpts)
 
 	// Right ear (floppy black, partially visible since facing right)
 	rightEar := ebiten.NewImage(4, 8)
 	rightEar.Fill(black)
 	rightEarOpts := &ebiten.DrawImageOptions{}
-	rightEarOpts.GeoM.Translate(22, 4)
+	rightEarOpts.GeoM.Translate(30, 4)
 	img.DrawImage(rightEar, rightEarOpts)
 
 	// Eye (visible eye since facing right)
 	eye := ebiten.NewImage(2, 2)
 	eye.Fill(black)
 	eyeOpts := &ebiten.DrawImageOptions{}
-	eyeOpts.GeoM.Translate(16, 8)
+	eyeOpts.GeoM.Translate(24, 8)
 	img.DrawImage(eye, eyeOpts)
 
 	// Nose on snout (pink) - positioned at end of longer snout
 	nose := ebiten.NewImage(2, 2)
 	nose.Fill(pink)
 	noseOpts := &ebiten.DrawImageOptions{}
-	noseOpts.GeoM.Translate(33, 12)
+	noseOpts.GeoM.Translate(41, 12)
 	img.DrawImage(nose, noseOpts)
 
 	// Black dot at tip of snout
 	snoutTip := ebiten.NewImage(1, 1)
 	snoutTip.Fill(black)
 	snoutTipOpts := &ebiten.DrawImageOptions{}
-	snoutTipOpts.GeoM.Translate(35, 13)
+	snoutTipOpts.GeoM.Translate(43, 13)
 	img.DrawImage(snoutTip, snoutTipOpts)
 
 	// Mouth line (small black line under nose)
 	mouth := ebiten.NewImage(3, 1)
 	mouth.Fill(black)
 	mouthOpts := &ebiten.DrawImageOptions{}
-	mouthOpts.GeoM.Translate(32, 14)
+	mouthOpts.GeoM.Translate(40, 14)
 	img.DrawImage(mouth, mouthOpts)
 
 	// Front legs (white with black paws)
@@ -209,28 +209,28 @@ func (am *AssetManager) createFluffyDogSprite(width, height int) *ebiten.Image {
 	frontLeg := ebiten.NewImage(4, 8)
 	frontLeg.Fill(white)
 	frontLegOpts := &ebiten.DrawImageOptions{}
-	frontLegOpts.GeoM.Translate(20, 40)
+	frontLegOpts.GeoM.Translate(28, 40)
 	img.DrawImage(frontLeg, frontLegOpts)
 
 	// Front paw (black)
 	frontPaw := ebiten.NewImage(4, 2)
 	frontPaw.Fill(black)
 	frontPawOpts := &ebiten.DrawImageOptions{}
-	frontPawOpts.GeoM.Translate(20, 46)
+	frontPawOpts.GeoM.Translate(28, 46)
 	img.DrawImage(frontPaw, frontPawOpts)
 
 	// Back leg (further from viewer)
 	backLeg := ebiten.NewImage(4, 8)
 	backLeg.Fill(white)
 	backLegOpts := &ebiten.DrawImageOptions{}
-	backLegOpts.GeoM.Translate(10, 40)
+	backLegOpts.GeoM.Translate(16, 40)
 	img.DrawImage(backLeg, backLegOpts)
 
 	// Back paw (black)
 	backPaw := ebiten.NewImage(4, 2)
 	backPaw.Fill(black)
 	backPawOpts := &ebiten.DrawImageOptions{}
-	backPawOpts.GeoM.Translate(10, 46)
+	backPawOpts.GeoM.Translate(16, 46)
 	img.DrawImage(backPaw, backPawOpts)
 
 	// Tail (black and white striped, pointing up and to the right)
@@ -238,28 +238,28 @@ func (am *AssetManager) createFluffyDogSprite(width, height int) *ebiten.Image {
 	tailBase := ebiten.NewImage(3, 8)
 	tailBase.Fill(black)
 	tailBaseOpts := &ebiten.DrawImageOptions{}
-	tailBaseOpts.GeoM.Translate(4, 20)
+	tailBaseOpts.GeoM.Translate(6, 20)
 	img.DrawImage(tailBase, tailBaseOpts)
 
 	// White stripe in middle of tail
 	tailMiddle := ebiten.NewImage(3, 3)
 	tailMiddle.Fill(white)
 	tailMiddleOpts := &ebiten.DrawImageOptions{}
-	tailMiddleOpts.GeoM.Translate(4, 22)
+	tailMiddleOpts.GeoM.Translate(6, 22)
 	img.DrawImage(tailMiddle, tailMiddleOpts)
 
 	// Black tip curving right
 	tailTip := ebiten.NewImage(4, 3)
 	tailTip.Fill(black)
 	tailTipOpts := &ebiten.DrawImageOptions{}
-	tailTipOpts.GeoM.Translate(2, 16)
+	tailTipOpts.GeoM.Translate(4, 16)
 	img.DrawImage(tailTip, tailTipOpts)
 
 	// White spot on tail tip
 	tailTipSpot := ebiten.NewImage(2, 2)
 	tailTipSpot.Fill(white)
 	tailTipSpotOpts := &ebiten.DrawImageOptions{}
-	tailTipSpotOpts.GeoM.Translate(3, 17)
+	tailTipSpotOpts.GeoM.Translate(5, 17)
 	img.DrawImage(tailTipSpot, tailTipSpotOpts)
 
 	return img
@@ -268,14 +268,14 @@ func (am *AssetManager) createFluffyDogSprite(width, height int) *ebiten.Image {
 // CreateSampleDogImage creates a sample dog PNG image file
 func (am *AssetManager) CreateSampleDogImage() error {
 	// Create a sample dog image using our existing sprite function
-	dogSprite := am.createFluffyDogSprite(32, 48)
+	dogSprite := am.createFluffyDogSprite(48, 48)
 
 	// Convert ebiten.Image to standard image
-	rgba := image.NewRGBA(image.Rect(0, 0, 32, 48))
+	rgba := image.NewRGBA(image.Rect(0, 0, 48, 48))
 
 	// Copy pixels from ebiten image to RGBA image
 	for y := 0; y < 48; y++ {
-		for x := 0; x < 32; x++ {
+		for x := 0; x < 48; x++ {
 			c := dogSprite.At(x, y)
 			rgba.Set(x, y, c)
 		}
@@ -285,7 +285,7 @@ func (am *AssetManager) CreateSampleDogImage() error {
 	// In practice, you'd manually place your dog.png file in the assets folder
 	log.Println("Sample dog image would be saved as assets/dog.png")
 	log.Println("To use a custom dog image:")
-	log.Println("1. Create or find a 32x48 pixel PNG image of a dog")
+	log.Println("1. Create or find a 48x48 pixel PNG image of a black and white dog")
 	log.Println("2. Save it as 'dog.png' in the internal/game/assets/ directory")
 	log.Println("3. Rebuild the game")
 

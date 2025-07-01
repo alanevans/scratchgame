@@ -48,11 +48,11 @@ func NewEntityManager() *EntityManager {
 func (em *EntityManager) CreateEntity() EntityID {
 	em.mutex.Lock()
 	defer em.mutex.Unlock()
-	
+
 	id := em.nextEntityID
 	em.nextEntityID++
 	em.entities[id] = true
-	
+
 	return id
 }
 
@@ -60,10 +60,10 @@ func (em *EntityManager) CreateEntity() EntityID {
 func (em *EntityManager) DestroyEntity(entityID EntityID) {
 	em.mutex.Lock()
 	defer em.mutex.Unlock()
-	
+
 	// Remove from entities map
 	delete(em.entities, entityID)
-	
+
 	// Remove all components for this entity
 	for componentType := range em.components {
 		delete(em.components[componentType], entityID)
@@ -74,13 +74,13 @@ func (em *EntityManager) DestroyEntity(entityID EntityID) {
 func (em *EntityManager) AddComponent(entityID EntityID, component Component) {
 	em.mutex.Lock()
 	defer em.mutex.Unlock()
-	
+
 	componentType := component.GetType()
-	
+
 	if em.components[componentType] == nil {
 		em.components[componentType] = make(map[EntityID]Component)
 	}
-	
+
 	em.components[componentType][entityID] = component
 }
 
@@ -88,13 +88,13 @@ func (em *EntityManager) AddComponent(entityID EntityID, component Component) {
 func (em *EntityManager) GetComponent(entityID EntityID, componentType ComponentType) (Component, bool) {
 	em.mutex.RLock()
 	defer em.mutex.RUnlock()
-	
+
 	if components, exists := em.components[componentType]; exists {
 		if component, exists := components[entityID]; exists {
 			return component, true
 		}
 	}
-	
+
 	return nil, false
 }
 
@@ -108,9 +108,9 @@ func (em *EntityManager) HasComponent(entityID EntityID, componentType Component
 func (em *EntityManager) GetEntitiesWithComponent(componentType ComponentType) []EntityID {
 	em.mutex.RLock()
 	defer em.mutex.RUnlock()
-	
+
 	var entities []EntityID
-	
+
 	if components, exists := em.components[componentType]; exists {
 		for entityID := range components {
 			if em.entities[entityID] {
@@ -118,7 +118,7 @@ func (em *EntityManager) GetEntitiesWithComponent(componentType ComponentType) [
 			}
 		}
 	}
-	
+
 	return entities
 }
 
@@ -126,9 +126,9 @@ func (em *EntityManager) GetEntitiesWithComponent(componentType ComponentType) [
 func (em *EntityManager) GetEntitiesWithComponents(componentTypes ...ComponentType) []EntityID {
 	em.mutex.RLock()
 	defer em.mutex.RUnlock()
-	
+
 	var entities []EntityID
-	
+
 	for entityID := range em.entities {
 		hasAll := true
 		for _, componentType := range componentTypes {
@@ -141,7 +141,7 @@ func (em *EntityManager) GetEntitiesWithComponents(componentTypes ...ComponentTy
 			entities = append(entities, entityID)
 		}
 	}
-	
+
 	return entities
 }
 
@@ -158,7 +158,7 @@ func (em *EntityManager) hasComponentUnsafe(entityID EntityID, componentType Com
 func (em *EntityManager) PrintDebugInfo() {
 	em.mutex.RLock()
 	defer em.mutex.RUnlock()
-	
+
 	fmt.Printf("Total entities: %d\n", len(em.entities))
 	for componentType, components := range em.components {
 		fmt.Printf("Component type %d: %d entities\n", componentType, len(components))

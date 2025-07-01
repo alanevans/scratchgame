@@ -3,8 +3,9 @@ package main
 import (
 	"log"
 
-	"github.com/hajimehoshi/ebiten/v2"
 	"scratchgame/internal/game"
+
+	"github.com/hajimehoshi/ebiten/v2"
 )
 
 const (

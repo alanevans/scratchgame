@@ -45,13 +45,13 @@ func (lm *LevelManager) createPlayer(x, y float64) EntityID {
 	lm.entityManager.AddComponent(playerID, &VelocityComponent{VX: 0, VY: 0})
 	lm.entityManager.AddComponent(playerID, &SpriteComponent{
 		ImageKey: "player",
-		Width:    32,
+		Width:    48,
 		Height:   48,
 		OffsetX:  0,
 		OffsetY:  0,
 	})
 	lm.entityManager.AddComponent(playerID, &ColliderComponent{
-		Width:     32,
+		Width:     48,
 		Height:    48,
 		OffsetX:   0,
 		OffsetY:   0,
@@ -65,6 +65,7 @@ func (lm *LevelManager) createPlayer(x, y float64) EntityID {
 		MoveSpeed:    4.0,
 		IsGrounded:   false,
 		JumpCooldown: 0,
+		FacingRight:  true, // Start facing right
 	})
 	lm.entityManager.AddComponent(playerID, &GravityComponent{
 		Force:      0.8,

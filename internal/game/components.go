@@ -33,11 +33,11 @@ func (c *SpriteComponent) GetType() ComponentType {
 
 // ColliderComponent represents collision boundaries
 type ColliderComponent struct {
-	Width    float64
-	Height   float64
-	OffsetX  float64
-	OffsetY  float64
-	IsSolid  bool
+	Width     float64
+	Height    float64
+	OffsetX   float64
+	OffsetY   float64
+	IsSolid   bool
 	IsTrigger bool
 }
 
@@ -47,12 +47,13 @@ func (c *ColliderComponent) GetType() ComponentType {
 
 // PlayerComponent marks an entity as the player
 type PlayerComponent struct {
-	Health        int
-	MaxHealth     int
-	JumpPower     float64
-	MoveSpeed     float64
-	IsGrounded    bool
-	JumpCooldown  int
+	Health       int
+	MaxHealth    int
+	JumpPower    float64
+	MoveSpeed    float64
+	IsGrounded   bool
+	JumpCooldown int
+	FacingRight  bool // true = facing right, false = facing left
 }
 
 func (c *PlayerComponent) GetType() ComponentType {
@@ -75,9 +76,9 @@ func (c *PlatformComponent) GetType() ComponentType {
 
 // GravityComponent applies gravity to an entity
 type GravityComponent struct {
-	Force        float64
-	Terminal     float64
-	IsAffected   bool
+	Force      float64
+	Terminal   float64
+	IsAffected bool
 }
 
 func (c *GravityComponent) GetType() ComponentType {

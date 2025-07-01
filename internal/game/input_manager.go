@@ -25,12 +25,12 @@ func (im *InputManager) Update() {
 	for key, pressed := range im.currentKeys {
 		im.previousKeys[key] = pressed
 	}
-	
+
 	// Clear current keys
 	for key := range im.currentKeys {
 		delete(im.currentKeys, key)
 	}
-	
+
 	// Get all pressed keys
 	for key := ebiten.Key(0); key <= ebiten.KeyMax; key++ {
 		if ebiten.IsKeyPressed(key) {
